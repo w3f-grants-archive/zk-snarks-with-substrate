@@ -10,9 +10,9 @@ $$ x^2+3=12 $$
 
 </center>
 
-will be able to join his Bright Coders union. As you probably remember, Alice was one of his friends who knows the solution. She was only afraid that revealing it loudly, could encourage others to first claim the vacancy. That's why she decided to use zk-SNARKs.
+will be able to join his Bright Coders union. As you probably remember, Alice was one of his friends who knew the solution. She was only afraid that revealing it loudly, could encourage others to first claim the vacancy. That's why she decided to use zk-SNARKs.
 
-Until this moment, everything that we did assumed Bob and Alice are in the same place. Alice decides to create proof because she doesn't want to reveal the solution to anyone. Bob verified it in front of her, so Alice was certain that she was the first who solve the puzzle. But what if they are not in the same place? What guarantee will have Alice, that her solution was verified first? This problem can be easily solved, if we could move it to the blockchain! Information about the winner will be known to everyone, and the verification process will be more transparent.
+Until this moment, everything that we did assumed Bob and Alice are in the same place. Alice decided to create proof because she didn't want to reveal the solution to anyone. Bob verified it in front of her, so Alice was certain that she was the first who solved the puzzle. But what if they weren't in the same place? What guarantee will Alice have, that her solution was verified first? This problem can be easily solved if we could move it to the blockchain! Information about the winner will be known to everyone, and the verification process will be more transparent.
 
 We are going to use a framework called [Substrate](https://substrate.io/), to create a custom blockchain. It is written in Rust language and was created by the [Parity](https://www.parity.io/). You can find more information about the Substrate in our other [post](https://brightinventions.pl/blog/5-benefits-of-substrate-blockchain). 
 
@@ -22,7 +22,7 @@ In Substrate, the business logic of the blockchain is hidden in the runtime. We 
 
 We have already learned that zk-SNARKs can be used to prove knowledge of a solution for a problem, without revealing it. We just need to provide proof that can be later verified by someone else. Creation of such proof is done in a couple of stages, where we first convert our problem to R1CS (*Rank-1 Constraint System*) form, and then transform it to the QAP (*Quadratic Arithmetic Program*). For this process, we used Circom and SnarkJS. We used a Groth16 as a proving system for assurance of the encryption. Finally, we were able to implement a Rust library, which used artifacts from Circom and SnarkJS, to validate proof.
 
-In the previous post, we show how we can use Circom and SnarkJS in the verification process. Let's remind us what artifacts in the context of those tools do we get:
+In the previous post, we show how we can use Circom and SnarkJS in the verification process. Let's remind us what artifacts in the context of those tools we get:
 * **[public.json](https://github.com/bright/zk-snarks-with-substrate/blob/M2-post/blog/data/public.json)** - this file contains public input, in our case, it is a `12` value from our equation.
 * **[verification_key.json](https://github.com/bright/zk-snarks-with-substrate/blob/M2-post/blog/data/verification_key.json)** - file generated from SnarkJS, it contains a verification key, which "signs" our circuits (transformed equation).
 * **[proof.json](https://github.com/bright/zk-snarks-with-substrate/blob/M2-post/blog/data/proof.json)** - file created by Alice using SnarkJS, which proves her knowledge of solving the equation. 
@@ -35,7 +35,7 @@ He is using a *Groth16* as a proving system. The output is:
 ```
 [INFO]  snarkJS: OK!
 ```
-which means that that proof passed the validation. Now we will try to do the same in the Substrate pallet, using our Groth16 code from the previous article.
+which means that proof passed the validation. Now we will try to do the same in the Substrate pallet, using our Groth16 code from the previous article.
 
 
 ## Substrate Pallet
@@ -43,7 +43,7 @@ First, let's define what we expect from pallet to do. We definitely would like t
 
 Based on what we said, we can define an interface for our pallet which is in Substrate called an extirices. We are going to define two methods:
 * **setup_verification** - this methods allows Bob to send a public inputs (*public.json*) and the verification key (*verification_key.json*).
-* **verify** - thanks to this method, Alice (and others) will be able to send their proofs (*proof.json*) and verify them. When the verification succeeded, it will emit an event that is going to be stored on the blockchain.
+* **verify** - thanks to this method, Alice (and others) will be able to send their proofs (*proof.json*) and verify them. When the verification succeeds, it will emit an event that is going to be stored on the blockchain.
 
 ## Implementation
 The implementation we started from the [Substrate Node Template](https://github.com/substrate-developer-hub/substrate-node-template), which is a single-node blockchain that we could run locally in our development environment. We added there a zk-SNARK pallet which uses Groth16 in the verification process. The final result can be found on our [GitHub](https://github.com/bright/zk-snarks-with-substrate). We will now try to present the core components of this code.
@@ -72,8 +72,8 @@ pub mod pallet {
 
 Now we are going to take a closer look at the following sections.
 
-#### #[pallet::config]
-All pallets in substrates define a trait called `Config`, which needs to be defined under this macro. We can declare here some specific pallet requirements. In our case for the zk-SNARK we are going to define some constant values:
+### #[pallet::config]
+All pallets in Substrate define a trait called `Config`, which needs to be defined under this macro. We can declare here some specific pallet requirements. In our case for, the zk-SNARK we are going to define some constant values:
 ```
 #[pallet::constant]
 type MaxPublicInputsLength: Get<u32>;
@@ -86,7 +86,7 @@ type MaxVerificationKeyLength: Get<u32>;
 ```
 As you probably guess, we are going to use those constants for checking the maximum length of our input files.
 
-#### #[pallet::event]
+### #[pallet::event]
 This section defines all events that can be emitted from our pallet. We have defined several events here that left information on the blockchain about the progress of the verification. 
 
 ```
@@ -101,7 +101,7 @@ pub enum Event<T: Config> {
 ```
 What is worth mentioning, Rust language allows the definition of different types of enums fields. We take advantage of this feature when we have declared a `VerificationSuccess` event. The event will store an `AccountId`, which represents an account that belongs to the person who submits valid proof.
 
-#### #[pallet::error]
+### #[pallet::error]
 Here we define all errors, which our pallet returns when something goes wrong.
 ```
 #[pallet::error]
@@ -123,7 +123,7 @@ pub enum Error<T> {
 }
 ```
 
-#### #[pallet::storage]
+### #[pallet::storage]
 The storage section defines all information that can be stored on the blockchain. In the context of zk-SNARKs, we would like to store artifacts generated by Bob (public inputs, verification key) and Alice (proof).
 ```
 #[pallet::storage]
@@ -140,7 +140,7 @@ pub type VerificationKeyStorage<T: Config> = StorageValue<_, VerificationKeyDef<
 #### #[pallet::call]
 Final section declarations extrinsics, which is the interface for pallets. As we mentioned earlier, we defined two methods. Thanks to them, we will be able to interact with the zk-SNARK pallet.
 
-The first method is for the verification setup, which is going to be used by Bob to set up the contest. We are going to store public input and the verification key. We will emit a *VerificationSetupCompleted* event, and if anything goes wrong, we will return an appropriate error.
+The first method is for the verification setup, which is going to be used by Bob to set up the contest. We are going to store public input and the verification key. We will emit a *VerificationSetupCompleted* event. If anything goes wrong, we will return an appropriate error.
 ```
 pub fn setup_verification(
         origin: OriginFor<T>,
@@ -156,7 +156,7 @@ pub fn setup_verification(
 }
 ```
 
-The second one is for Alice (and others), to send and validate their proofs. First, we will get already stored values for the public inputs and the verification key. Then we will store a proof and verify it with our Groth16 library. Depending on the verification result, we will send an appropriate event.
+The second one is for Alice (and others), to send and validate their proofs. First, we will get already stored values for the public inputs and the verification key. Then we will store a proof and verify it with our Groth16 library. Depending on the verification result we will send an appropriate event.
 
 ```
 pub fn verify(origin: OriginFor<T>, vec_proof: Vec<u8>) -> DispatchResult {
@@ -260,4 +260,4 @@ Now we can verify if we received a `VerificationSuccess` event. To do it, we nee
 As you see, verification succeed, and the event was emitted from the Aclie account.
 
 ## Summary
-Thanks to blockchain technology and zk-SNARKs, Alice proves that she knows the solution to the Bob puzzle without revealing it. Everything was stored on the blockchain, so the result of the contest was fully transparent for everyone.
+Thanks to blockchain technology and zk-SNARKs, Alice proved that she known the solution to the Bob puzzle without revealing it. Everything was stored on the blockchain, so the result of the contest was fully transparent for everyone.

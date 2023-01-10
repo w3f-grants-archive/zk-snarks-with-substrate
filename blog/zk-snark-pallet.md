@@ -73,7 +73,7 @@ pub mod pallet {
 Now we are going to take a closer look at the following sections.
 
 ### #[pallet::config]
-All pallets in Substrate define a trait called `Config`, which needs to be defined under this macro. We can declare here some specific pallet requirements. In our case for, the zk-SNARK we are going to define some constant values:
+All pallets in Substrate define a trait called `Config`, which needs to be defined under this macro. We can declare here some specific pallet requirements. In our case, for the zk-SNARK we are going to define some constant values:
 ```
 #[pallet::constant]
 type MaxPublicInputsLength: Get<u32>;
@@ -137,7 +137,7 @@ pub type VerificationKeyStorage<T: Config> = StorageValue<_, VerificationKeyDef<
 
 ```
 
-#### #[pallet::call]
+### #[pallet::call]
 Final section declarations extrinsics, which is the interface for pallets. As we mentioned earlier, we defined two methods. Thanks to them, we will be able to interact with the zk-SNARK pallet.
 
 The first method is for the verification setup, which is going to be used by Bob to set up the contest. We are going to store public input and the verification key. We will emit a *VerificationSetupCompleted* event. If anything goes wrong, we will return an appropriate error.
@@ -257,7 +257,7 @@ Now we can verify if we received a `VerificationSuccess` event. To do it, we nee
 
 </center>
 
-As you see, verification succeed, and the event was emitted from the Aclie account.
+As you see, verification succeed, and the event was emitted from the Alice account.
 
 ## Summary
-Thanks to blockchain technology and zk-SNARKs, Alice proved that she known the solution to the Bob puzzle without revealing it. Everything was stored on the blockchain, so the result of the contest was fully transparent for everyone.
+Thanks to blockchain technology and zk-SNARKs, Alice proved that she knew the solution to the Bob puzzle without revealing it. Everything was stored on the blockchain, so the result of the contest was fully transparent for everyone.

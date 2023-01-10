@@ -200,13 +200,13 @@ fn test_verification_success() {
 			prepare_correct_public_inputs_json().as_bytes().into(),
 			vk.as_bytes().into()
 		));
-		assert_ok!(ZKSnarks::verify(RuntimeOrigin::none(), proof.as_bytes().into()));
+		assert_ok!(ZKSnarks::verify(RuntimeOrigin::signed(2), proof.as_bytes().into()));
 
 		let events = zk_events();
 		assert_eq!(events.len(), 3);
 		assert_eq!(events[0], Event::<Test>::VerificationSetupCompleted);
 		assert_eq!(events[1], Event::<Test>::VerificationProofSet);
-		assert_eq!(events[2], Event::<Test>::VerificationSuccess);
+		assert_eq!(events[2], Event::<Test>::VerificationSuccess{who: 2});
 	});
 }
 
@@ -221,7 +221,7 @@ fn test_verification_failed() {
 			prepare_incorrect_public_inputs_json().as_bytes().into(),
 			vk.as_bytes().into()
 		));
-		assert_ok!(ZKSnarks::verify(RuntimeOrigin::none(), proof.as_bytes().into()));
+		assert_ok!(ZKSnarks::verify(RuntimeOrigin::signed(3), proof.as_bytes().into()));
 
 		let events = zk_events();
 		assert_eq!(events.len(), 3);
